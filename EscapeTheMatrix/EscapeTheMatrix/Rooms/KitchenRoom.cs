@@ -1,11 +1,12 @@
 ﻿using System;
+using EscapeTheMatrix.Interfaces;
 
 namespace EscapeTheMatrix.Rooms
 {
-    public class KitchenRoom : IRoom
+    public class KitchenRoom : Room
     {
-        public List<IRoom> Rooms { get; set; }
-        public string Name { get; set; }
+        public override List<IRoom> Rooms { get; set; }
+        public override string Name { get => base.Name; set => base.Name = value; }
         public KitchenRoom()
         {
             Rooms = new();

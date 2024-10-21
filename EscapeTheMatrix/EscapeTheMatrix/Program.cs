@@ -1,4 +1,6 @@
-﻿using EscapeTheMatrix.Rooms;
+﻿using EscapeTheMatrix.misc;
+using EscapeTheMatrix.Rooms;
+using EscapeTheMatrix.Services;
 using Spectre.Console;
 
 namespace EscapeTheMatrix;
@@ -8,72 +10,78 @@ class Program
     static void Main(string[] args)
     {
 
-        Day GameDay = new Day("7. Maj, 1999\nHorsens, Danmark");
-        Navigation navigationService = new();
+        Day day = new Day("7. Maj, 1999\nHorsens, Danmark");
 
-        ToiletRoom toiletRoom = new() { Name = "Toilet" };
-        BedRoom bedRoom = new() { Name = "Soveværelse" };
-        KitchenRoom kitchenRoom = new() { Name = "Køkken" };
-        HallwayRoom hallwayRoom = new() { Name = "Gang" };
-        LivingRoom livingRoom = new() { Name = "Stue" };
+        // Dependencies
+        NavigationService navigationService = new();
+        RoomService roomService = new();
+        DialogService dialogService = new();
+        PromptService promptService = new();
 
-        // Bedroom
-        bedRoom.Rooms.Add(toiletRoom);
-        bedRoom.Rooms.Add(hallwayRoom);
+        // Instantiate Room objects & create connections between them.
+        roomService.CreateRooms();
+        roomService.AddRoomConnection();
 
-        // Toilet
-        toiletRoom.Rooms.Add(bedRoom);
-        toiletRoom.Rooms.Add(hallwayRoom);
-
-        // Hallway
-        hallwayRoom.Rooms.Add(toiletRoom);
-        hallwayRoom.Rooms.Add(bedRoom);
-        hallwayRoom.Rooms.Add(kitchenRoom);
-        hallwayRoom.Rooms.Add(livingRoom);
-
-        // Living room
-        livingRoom.Rooms.Add(hallwayRoom);
-        livingRoom.Rooms.Add(kitchenRoom);
-
-        // Kitchen
-        kitchenRoom.Rooms.Add(livingRoom);
-        kitchenRoom.Rooms.Add(hallwayRoom);
-
-        Room.CurrentRoom = bedRoom;
+        // Set current room
+        roomService.CurrentRoom = roomService.BedRoom;
 
         bool isGameRunning = true;
         while (isGameRunning)
         {
-            Console.WriteLine(GameDay.GameDay);
+            //Thread.Sleep(300);
+            Panel panel = new Panel(day.Date)
+                .Padding(new Padding(2, 2))
+                .Expand()
+                .Border(BoxBorder.Rounded);
+            AnsiConsole.Write(new Align(panel, HorizontalAlignment.Center, VerticalAlignment.Middle));
 
-            // Navigation
-            navigationService.PrintNavigation(Room.CurrentRoom);
-            Console.WriteLine($"Du står lige nu i {Room.CurrentRoom.Name}. Vælg et rum at gå til:");
-            int i = 1;
-            foreach (IRoom room in Room.CurrentRoom.Rooms)
+            //Thread.Sleep(3000);
+
+            Console.Clear();
+
+            dialogService.NarratorSay("Et sted i Horsens ligger en dreng ved navn Joakim og sover, alt imens verden som han kender den er sat på pause.");
+
+
+            //Thread.Sleep(5000);
+            Console.Clear();
+            dialogService.UserSay("ZZZZzzzZZZZZ");
+            //Thread.Sleep(4000);
+
+            dialogService.NarratorSay("Måske du skulle vække ham?");
+
+            string prompt = promptService.CreatePrompt(new[] { "Væk Joakim" });
+            if (prompt == "Væk Joakim")
             {
-                Console.WriteLine($"{i}) {room.Name}");
-                ++i;
+                Console.Clear();
+                dialogService.UserSay("...........ZZzzZZ");
+                //Thread.Sleep(1000);
+                dialogService.NarratorSay("Hmmm.... det virkede ikke helt. Prøv igen.");
             }
 
-            int userInput = int.Parse(Console.ReadLine());
-            switch(userInput)
+            prompt = promptService.CreatePrompt(new[] { "Væk Joakim" });
+            if (prompt == "Væk Joakim")
             {
-                case 1:
-                    navigationService.GoToRoom(toiletRoom);
-                    break;
-
-                case 2:
-                    navigationService.GoToRoom(hallwayRoom);
-                    break;
-
-                default:
-                    Console.WriteLine("Du blev bedt om at taste 1 eller 2.");
-                    break;
+                Console.Clear();
+                dialogService.UserSay("*vågner*");
+                //Thread.Sleep(1000);
+                dialogService.UserSay("Hvad sker der?");
+                //Thread.Sleep(1000);
+                dialogService.NarratorSay("Det virkede!");
             }
-            Console.WriteLine(Room.CurrentRoom.Name);
+            //Thread.Sleep(3000);
+            Console.Clear();
+            dialogService.UserSay("Jeg kan lige så godt gå ud og tisse nu hvor jeg er vågen, I guess.");
+            //Thread.Sleep(3000);
+
+
+            prompt = promptService.CreatePrompt(roomService.CurrentRoom);
+
+
+
             isGameRunning = false;
         }
+
+        Console.ReadKey();
 
     }
 
