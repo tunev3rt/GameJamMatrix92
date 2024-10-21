@@ -4,14 +4,18 @@ namespace EscapeTheMatrix
 {
 	public class Navigation
 	{
-
-
 		public Navigation()
 		{
 		}
-		public List<Room> PrintNavigation(Room room)
+
+		public List<IRoom> PrintNavigation(IRoom room)
 		{
-			return room.Rooms;
+			return room.Rooms.ToList();
+		}
+
+		public void GoToRoom(IRoom room)
+		{
+			Room.CurrentRoom = room;
 		}
 	}
 }
